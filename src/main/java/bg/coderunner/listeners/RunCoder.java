@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @Component
 public class RunCoder extends ListenerAdapter {
@@ -55,16 +56,19 @@ public class RunCoder extends ListenerAdapter {
         json.put("version", getLanguageVersion(language));
         json.put("files", filesArray);
 
-        RequestBody body = RequestBody.create(json.toString(), MediaType.get("application/json; charset=utf-8"));
+        RequestBody body = RequestBody.create(json.toString().getBytes(StandardCharsets.UTF_8), MediaType.get("application/json; charset=utf-8"));
         Request request = new Request.Builder().url("https://emkc.org/api/v2/piston/execute").post(body).build();
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 return "Error occurred while executing the code";
             }
-            JSONObject jsonResponse = new JSONObject(response.body().string());
-            JSONObject run = jsonResponse.getJSONObject("run");
 
+            String jsonResponseStr = new String(response.body().bytes(), StandardCharsets.UTF_8);
+
+            JSONObject jsonResponse = new JSONObject(jsonResponseStr);
+
+            JSONObject run = jsonResponse.getJSONObject("run");
             String stdout = run.optString("stdout", "");
             String stderr = run.optString("stderr", "");
 
@@ -74,6 +78,7 @@ public class RunCoder extends ListenerAdapter {
             return stdout.isEmpty() ? "No output" : stdout;
         }
     }
+
 
     private String[] removeBackticksAndLanguage(String code) {
         String language = "";
@@ -123,7 +128,7 @@ public class RunCoder extends ListenerAdapter {
         embed.setThumbnail("https://cdn.discordapp.com/avatars/1283371499197300738/498b8d6cd94b4324e780128667305b5d.png");
         embed.setColor(0x00ff00);
         embed.addField("Language Detected", language, false);
-        embed.addField("Result", executionResult.isEmpty() ? "No output" : executionResult, false);
+        embed.addField("Result", executionResult.isEmpty() ? "No output" : "```\n" + executionResult + "\n```", false);
         embed.setFooter("Executed by CodeRunner", "https://cdn.discordapp.com/avatars/1283371499197300738/498b8d6cd94b4324e780128667305b5d.png");
 
         channel.sendMessageEmbeds(embed.build()).queue();
