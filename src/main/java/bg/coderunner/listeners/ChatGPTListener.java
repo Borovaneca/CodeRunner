@@ -1,6 +1,7 @@
 package bg.coderunner.listeners;
 
 import bg.coderunner.utils.EmbeddedMessages;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import okhttp3.*;
@@ -51,31 +52,43 @@ public class ChatGPTListener extends ListenerAdapter {
                 .post(body)
                 .build();
 
-        try {
-            Response response = client.newCall(request).execute();
-            if (response.isSuccessful()) {
-                String responseBody = response.body().string();
-                JSONObject jsonResponse = new JSONObject(responseBody);
-                JSONArray choices = jsonResponse.getJSONArray("choices");
-                String reply = choices.getJSONObject(0).getJSONObject("message").getString("content");
-                event.getChannel().sendMessageEmbeds(EmbeddedMessages.generateAiResponse(reply, event.getJDA().getSelfUser().getAvatarUrl())).queue();
-            } else {
+        event.getChannel().sendMessage("⏳ Preparing your response...").queue((Message preparingMessage) -> {
+
+            try {
+                Response response = client.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    JSONObject jsonResponse = new JSONObject(responseBody);
+                    JSONArray choices = jsonResponse.getJSONArray("choices");
+                    String reply = choices.getJSONObject(0).getJSONObject("message").getString("content");
+
+                    event.getChannel().sendMessageEmbeds(
+                            EmbeddedMessages.generateAiResponse(reply, event.getJDA().getSelfUser().getAvatarUrl())
+                    ).queue();
+
+                    preparingMessage.delete().queue();
+
+                } else {
+                    event.getChannel().sendMessageEmbeds(
+                            EmbeddedMessages.generateErrorResponse(
+                                    "API Call Failed",
+                                    "The API request was not successful. Status Code: " + response.code(),
+                                    event.getJDA().getSelfUser().getAvatarUrl())
+                    ).queue();
+
+                    preparingMessage.delete().queue();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
                 event.getChannel().sendMessageEmbeds(
                         EmbeddedMessages.generateErrorResponse(
-                                "API Call Failed",
-                                "The API request was not successful. Status Code: " + response.code(),
-                                event.getAuthor().getAvatarUrl())
+                                "Error Encountered",
+                                "An error occurred while processing your request: " + e.getMessage(),
+                                event.getJDA().getSelfUser().getAvatarUrl())
                 ).queue();
+
+                preparingMessage.delete().queue();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            e.printStackTrace();
-            event.getChannel().sendMessageEmbeds(
-                    EmbeddedMessages.generateErrorResponse(
-                            "Error Encountered",
-                            "An error occurred while processing your request: " + e.getMessage(),
-                            event.getAuthor().getAvatarUrl())
-            ).queue();
-        }
+        });
     }
 }
