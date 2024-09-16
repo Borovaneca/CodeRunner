@@ -131,4 +131,4 @@ Contributions are welcome! If you'd like to improve CodeRunner, feel free to sub
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/git/git-scm.com/blob/main/MIT-LICENSE.txt) file for details.
