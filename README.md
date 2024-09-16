@@ -55,7 +55,7 @@ Before setting up the bot, ensure you have the following installed:
 
 ### Configuration
 
-1. Rename the `application-env.properties` file to `application.properties`.
+1. Create the `application-env.properties` in the main dir.
 2. Add your configuration details:
    - `BOT_TOKEN`: Your Discord bot token.
    - `AIBOT_TOKEN`: Your OpenAI API key.
