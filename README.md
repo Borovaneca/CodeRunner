@@ -1,7 +1,9 @@
 
 # CodeRunner Discord Bot
 
-<center><img src="https://cdn.discordapp.com/avatars/1283371499197300738/498b8d6cd94b4324e780128667305b5d.png?size=1024" alt="CodeRunner Logo" width="200"/></center><!-- Optional: Add a logo or banner here -->
+<div align="center">
+  <img src="https://cdn.discordapp.com/avatars/1283371499197300738/498b8d6cd94b4324e780128667305b5d.png?size=1024" alt="CodeRunner Logo" width="200"/>
+</div><!-- Optional: Add a logo or banner here -->
 
 CodeRunner is a Discord bot built with Spring Boot and JDA (Java Discord API) that enables users to interact with AI models and execute code snippets within Discord. With a simple and intuitive command system, CodeRunner can handle AI-powered conversations and execute code snippets in real-time.
 
